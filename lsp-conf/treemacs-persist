@@ -1,0 +1,9 @@
+* Hands One Microservices
+** product-service
+ - path :: /emacsDocuments/microservices/product-service
+** product-composite-service
+ - path :: /emacsDocuments/microservices/product-composite-service
+** recommendation-service
+ - path :: /emacsDocuments/microservices/recommendation-service
+** review-service
+ - path :: /emacsDocuments/microservices/review-service
