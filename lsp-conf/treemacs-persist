@@ -7,3 +7,7 @@
  - path :: /emacsDocuments/microservices/recommendation-service
 ** review-service
  - path :: /emacsDocuments/microservices/review-service
+** api
+ - path :: /emacsDocuments/api
+** util
+ - path :: /emacsDocuments/util
