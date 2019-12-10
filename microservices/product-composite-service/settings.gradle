@@ -11,4 +11,10 @@ pluginManagement {
 		}
 	}
 }
+
+include ':api'
+project(':api').projectDir = new File('../../api')
+include ':util'
+project(':util').projectDir = new File('../../util')
+
 rootProject.name = 'product-composite-service'
