@@ -1,0 +1,36 @@
+package de.mulenatic.microservices.core.product.services;
+
+import de.mulenatic.api.core.product.ProductService;
+import de.mulenatic.util.http.ServiceUtil;
+import de.mulenatic.api.core.product.Product;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Web.Server;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * ProductServiceImpl
+ */
+@RestController
+public class ProductServiceImpl implements ProductService {
+
+    private final ServiceUtil serviceUtil;
+
+    @Autowired
+    public ProductServiceImpl(ServiceUtil serviceUtil) {
+	this.serviceUtil = serviceUtil;
+    }
+
+    
+
+    @Override
+    public Product getProduct(@PathVariable int productId) {
+	return new Product(productId, "name-" + productId, 123, serviceUtil.getServiceAddress());
+    }
+
+
+
+
+    
+}
