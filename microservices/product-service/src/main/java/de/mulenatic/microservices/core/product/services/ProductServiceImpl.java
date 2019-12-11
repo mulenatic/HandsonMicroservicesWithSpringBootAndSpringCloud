@@ -1,5 +1,6 @@
 package de.mulenatic.microservices.core.product.services;
 
+<<<<<<< HEAD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,21 @@ import de.mulenatic.util.exceptions.InvalidInputException;
 import de.mulenatic.util.exceptions.NotFoundException;
 import de.mulenatic.util.http.ServiceUtil;
 
+=======
+import de.mulenatic.api.core.product.ProductService;
+import de.mulenatic.util.exceptions.InvalidInputException;
+import de.mulenatic.util.exceptions.NotFoundException;
+import de.mulenatic.util.http.ServiceUtil;
+import de.mulenatic.api.core.product.Product;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Web.Server;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+>>>>>>> 2f98c66df1deeab9b5f55944cac05c81aed1b702
 /**
  * ProductServiceImpl
  */
