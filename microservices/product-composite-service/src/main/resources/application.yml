@@ -1,0 +1,13 @@
+server.port: 7000
+
+app:
+  product-service:
+    host: localhost
+    port: 7001
+  review-service:
+    host: localhost
+    port: 7002
+  recommandation-service:
+    host: localhost
+    port: 7003
+    
