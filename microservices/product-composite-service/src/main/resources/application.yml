@@ -7,7 +7,7 @@ app:
   review-service:
     host: localhost
     port: 7002
-  recommandation-service:
+  recommendation-service:
     host: localhost
     port: 7003
     
