@@ -44,13 +44,14 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 	@Autowired
 	public ProductCompositeIntegration(RestTemplate restTemplate, ObjectMapper mapper,
 			@Value("${app.product-service.host}") String productServiceHost,
-			@Value("$(app.product-service.port)") String productServicePort,
+			@Value("${app.product-service.port}") String productServicePort,
 			@Value("${app.review-service.host}") String reviewServiceHost,
-			@Value("$(app.review-service.port)") String reviewServicePort,
+			@Value("${app.review-service.port}") String reviewServicePort,
 			@Value("${app.recommendation-service.host}") String recommendationServiceHost,
-			@Value("$(app.recommendation-service.port)") String recommendationServicePort) {
+			@Value("${app.recommendation-service.port}") String recommendationServicePort) {
 		this.restTemplate = restTemplate;
 		this.mapper = mapper;
+
 		this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
 		this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort
 				+ "/recommendation?productId=";
