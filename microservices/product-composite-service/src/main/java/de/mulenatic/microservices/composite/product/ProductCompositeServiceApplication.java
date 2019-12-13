@@ -46,7 +46,7 @@ public class ProductCompositeServiceApplication {
     public Docket apiDocumentation() {
 	return new Docket(DocumentationType.SWAGGER_2)
 	    .select()
-	    .apis(RequestHandlerSelectors.basePackage("de.mulenatic.composite.product"))
+	    .apis(RequestHandlerSelectors.basePackage("de.mulenatic.microservices.composite.product"))
 	    .paths(PathSelectors.any())
 	    .build()
 	    .globalResponseMessage(RequestMethod.GET, Collections.emptyList())
