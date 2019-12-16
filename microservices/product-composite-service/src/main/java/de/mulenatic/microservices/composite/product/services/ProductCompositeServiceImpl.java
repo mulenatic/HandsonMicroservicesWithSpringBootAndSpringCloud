@@ -124,6 +124,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 	productCompositeIntegration.deleteProduct(productId);
 	productCompositeIntegration.deleteRecommendations(productId);
 	productCompositeIntegration.deleteReviews(productId);
+
     }
 
     
