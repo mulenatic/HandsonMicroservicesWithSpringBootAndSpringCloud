@@ -3,6 +3,7 @@ package de.mulenatic.api.composite.product;
 import java.util.List;
 
 public class ProductAggregate {
+
     private final int productId;
     private final String name;
     private final int weight;
