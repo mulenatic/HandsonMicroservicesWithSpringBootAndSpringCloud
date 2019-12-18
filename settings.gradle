@@ -1,20 +1,5 @@
-pluginManagement {
-	repositories {
-		maven { url 'https://repo.spring.io/milestone' }
-		gradlePluginPortal()
-	}
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id == 'org.springframework.boot') {
-				useModule("org.springframework.boot:spring-boot-gradle-plugin:${requested.version}")
-			}
-		}
-	}
-}
-
-include 'api'
-include 'util'
-
+include ':api'
+include ':util'
 include ':microservices:product-service'
 include ':microservices:review-service'
 include ':microservices:recommendation-service'
