@@ -11,3 +11,7 @@
  - path :: /emacsDocuments/api
 ** util
  - path :: /emacsDocuments/util
+** spring-cloud
+ - path :: /emacsDocuments/spring-cloud
+** config-repo
+ - path :: /emacsDocuments/config-repo
