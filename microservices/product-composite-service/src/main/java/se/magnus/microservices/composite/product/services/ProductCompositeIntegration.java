@@ -49,7 +49,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
     private WebClient webClient;
 
-    private MessageSources messageSources;
+    private final MessageSources messageSources;
+
+    private final int productServiceTimeoutSec;
 
     public interface MessageSources {
 
@@ -71,11 +73,14 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     public ProductCompositeIntegration(
         WebClient.Builder webClientBuilder,
         ObjectMapper mapper,
-        MessageSources messageSources
+        MessageSources messageSources,
+        @Value("${app.product-service.timeoutSec}") int productServiceTimeoutSec
+
     ) {
         this.webClientBuilder = webClientBuilder;
         this.mapper = mapper;
         this.messageSources = messageSources;
+        this.productServiceTimeoutSec = productServiceTimeoutSec;
     }
 
     @Override
@@ -84,13 +89,17 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         return body;
     }
 
+    @CircuitBreaker(name = "product")
     @Override
     public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
 
         URI url = UriComponentsBuilder.fromUriString(productServiceUrl + "/product/{productId}?delay={delay}&faultPercent={faultPercent}").build(productId, delay, faultPercent);
         LOG.debug("Will call the getProduct API on URL: {}", url);
 
-        return getWebClient().get().uri(url).retrieve().bodyToMono(Product.class).log().onErrorMap(WebClientResponseException.class, ex -> handleException(ex));
+        return getWebClient().get().uri(url)
+            .retrieve().bodyToMono(Product.class).log()
+            .onErrorMap(WebClientResponseException.class, ex -> handleException(ex))
+            .timeout(Duration.ofSeconds(productServiceTimeoutSec));
     }
 
     @Override
@@ -107,7 +116,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Flux<Recommendation> getRecommendations(int productId) {
 
-        String url = recommendationServiceUrl + "/recommendation?productId=" + productId;
+        URI url = UriComponentsBuilder.fromUriString(recommendationServiceUrl + "/recommendation?productId={productId}").build(productId);
 
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
 
@@ -129,7 +138,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Flux<Review> getReviews(int productId) {
 
-        String url = reviewServiceUrl + "/review?productId=" + productId;
+        URI url = UriComponentsBuilder.fromUriString(reviewServiceUrl + "/review?productId={productId}").build(productId);
 
         LOG.debug("Will call the getReviews API on URL: {}", url);
 
