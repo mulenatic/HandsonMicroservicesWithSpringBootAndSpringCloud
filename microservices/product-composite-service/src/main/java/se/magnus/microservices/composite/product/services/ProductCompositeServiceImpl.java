@@ -80,7 +80,8 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         return Mono.zip(
                 values -> createProductAggregate((SecurityContext) values[0], (Product) values[1], (List<Recommendation>) values[2], (List<Review>) values[3], serviceUtil.getServiceAddress()),
                 ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
-                integration.getProduct(productId, delay, faultPercent),
+                integration.getProduct(productId, delay, faultPercent)
+                    .onErrorReturn(CircuitBreakerOpenException.class, getProductFallbackValue(productId)),
                 integration.getRecommendations(productId).collectList(),
                 integration.getReviews(productId).collectList())
             .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
@@ -108,6 +109,19 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             LOG.warn("deleteCompositeProduct failed: {}", re.toString());
             throw re;
         }
+    }
+
+    private Product getProductFallbackValue(int productId) {
+
+        LOG.warn("Creating a fallback product for productId = {}", productId);
+
+        if (productId == 13) {
+            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+            LOG.warn(errMsg);
+            throw new NotFoundException(errMsg);
+        }
+
+        return new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress());
     }
 
     private ProductAggregate createProductAggregate(SecurityContext sc, Product product, List<Recommendation> recommendations, List<Review> reviews, String serviceAddress) {
