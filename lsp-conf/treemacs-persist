@@ -15,3 +15,5 @@
  - path :: /emacsDocuments/spring-cloud
 ** config-repo
  - path :: /emacsDocuments/config-repo
+** kubernetes
+ - path :: /emacsDocuments/kubernetes
