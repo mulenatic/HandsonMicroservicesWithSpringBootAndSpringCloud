@@ -5,3 +5,4 @@ resources:
 - recommendation.yml
 - review.yml
 - zipkin-server.yml
+- ingress-edge-server.yml
