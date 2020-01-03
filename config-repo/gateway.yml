@@ -11,14 +11,14 @@ app.config-server: localhost
 spring.cloud.gateway.routes:
 
 - id: product-composite
-  uri: lb://product-composite
+  uri: http://product-composite
   predicates:
   - Path=/product-composite/**
   #        filters:
   #        - TokenRelay=
 
 - id: oauth-server
-  uri: lb://auth-server
+  uri: http://${app.auth-server}
   predicates:
   - Path=/oauth/**
 
