@@ -17,6 +17,8 @@ import se.magnus.util.http.ServiceUtil;
 
 import java.util.List;
 
+import static java.util.logging.Level.FINE;
+
 @RestController
 public class ReviewServiceImpl implements ReviewService {
 
@@ -60,7 +62,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
 
-        return asyncFlux(getByProductId(productId)).log();
+        LOG.info("Will get reviews for product with id={}", productId);
+
+        return asyncFlux(getByProductId(productId)).log(null, FINE);
     }
 
     protected List<Review> getByProductId(int productId) {
@@ -69,7 +73,7 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> list = mapper.entityListToApiList(entityList);
         list.forEach(e -> e.setServiceAddress(serviceUtil.getServiceAddress()));
 
-        LOG.debug("getReviews: response size: {}", list.size());
+        LOG.debug("Response size: {}", list.size());
 
         return list;
     }

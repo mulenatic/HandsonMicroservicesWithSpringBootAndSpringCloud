@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
 
+import static java.util.logging.Level.FINE;
+
 @Configuration
 public class HealthCheckConfiguration {
 
@@ -51,7 +53,7 @@ public class HealthCheckConfiguration {
         return getWebClient().get().uri(url).retrieve().bodyToMono(String.class)
             .map(s -> new Health.Builder().up().build())
             .onErrorResume(ex -> Mono.just(new Health.Builder().down(ex).build()))
-            .log();
+            .log(null, FINE);
     }
 
     private WebClient getWebClient() {

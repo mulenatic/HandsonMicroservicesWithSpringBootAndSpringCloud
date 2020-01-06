@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 
+import static java.util.logging.Level.FINE;
 import static reactor.core.publisher.Flux.empty;
 import static se.magnus.api.event.Event.Type.CREATE;
 import static se.magnus.api.event.Event.Type.DELETE;
@@ -102,7 +103,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
         return getWebClient().get().uri(url)
             .headers(h -> h.addAll(headers))
-            .retrieve().bodyToMono(Product.class).log()
+            .retrieve().bodyToMono(Product.class).log(null, FINE)
             .onErrorMap(WebClientResponseException.class, ex -> handleException(ex))
             .timeout(Duration.ofSeconds(productServiceTimeoutSec));
     }
@@ -126,7 +127,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
 
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Recommendation.class).log().onErrorResume(error -> empty());
+        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Recommendation.class).log(null, FINE).onErrorResume(error -> empty());
     }
 
     @Override
@@ -148,7 +149,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getReviews API on URL: {}", url);
 
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Review.class).log().onErrorResume(error -> empty());
+        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Review.class).log(null, FINE).onErrorResume(error -> empty());
 
     }
 

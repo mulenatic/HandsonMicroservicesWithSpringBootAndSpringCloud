@@ -17,6 +17,7 @@ import se.magnus.util.http.ServiceUtil;
 
 import java.util.Random;
 
+import static java.util.logging.Level.FINE;
 import static reactor.core.publisher.Mono.error;
 
 @RestController
@@ -44,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
 
         ProductEntity entity = mapper.apiToEntity(body);
         Mono<Product> newEntity = repository.save(entity)
-            .log()
+            .log(null, FINE)
             .onErrorMap(
                 DuplicateKeyException.class,
                 ex -> new InvalidInputException("Duplicate key, Product Id: " + body.getProductId()))
@@ -62,9 +63,11 @@ public class ProductServiceImpl implements ProductService {
 
         if (faultPercent > 0) throwErrorIfBadLuck(faultPercent);
 
+        LOG.info("Will get product info for id={}", productId);
+
         return repository.findByProductId(productId)
             .switchIfEmpty(error(new NotFoundException("No product found for productId: " + productId)))
-            .log()
+            .log(null, FINE)
             .map(e -> mapper.entityToApi(e))
             .map(e -> {e.setServiceAddress(serviceUtil.getServiceAddress()); return e;});
     }
@@ -75,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
         if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
 
         LOG.debug("deleteProduct: tries to delete an entity with productId: {}", productId);
-        repository.findByProductId(productId).log().map(e -> repository.delete(e)).flatMap(e -> e).block();
+        repository.findByProductId(productId).log(null, FINE).map(e -> repository.delete(e)).flatMap(e -> e).block();
     }
 
     private void simulateDelay(int delay) {
@@ -89,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
         if (faultPercent < randomThreshold) {
             LOG.debug("We got lucky, no error occurred, {} < {}", faultPercent, randomThreshold);
         } else {
-            LOG.debug("Bad luck, an error occurred, {} >= {}", faultPercent, randomThreshold);
+            LOG.warn("Bad luck, an error occurred, {} >= {}", faultPercent, randomThreshold);
             throw new RuntimeException("Something went wrong...");
         }
     }

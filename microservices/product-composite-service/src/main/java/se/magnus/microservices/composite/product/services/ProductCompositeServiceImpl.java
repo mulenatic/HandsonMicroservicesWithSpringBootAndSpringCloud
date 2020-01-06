@@ -25,6 +25,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.logging.Level.FINE;
+
 @RestController
 public class ProductCompositeServiceImpl implements ProductCompositeService {
 
@@ -82,6 +84,8 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     @Override
     public Mono<ProductAggregate> getCompositeProduct(HttpHeaders requestHeaders, int productId, int delay, int faultPercent) {
 
+        LOG.info("Will get composite product info for product.id={}", productId);
+
         HttpHeaders headers = getHeaders(requestHeaders, "X-group");
 
         return Mono.zip(
@@ -93,7 +97,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                 integration.getRecommendations(headers, productId).collectList(),
                 integration.getReviews(headers, productId).collectList())
             .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
-            .log();
+            .log(null, FINE);
     }
 
     @Override
@@ -132,9 +136,15 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         return h;
     }
 
+    /**
+     * Note that this method is called by Mono.onErrorReturn() in getCompositeProduct().
+     * Mono.onErrorReturn() will call this method once per execution to prepare a static response if the execution fails.
+     * Do not execute any lengthy or CPU intensive operation in this method.
+     *
+     * @param productId
+     * @return
+     */
     private Product getProductFallbackValue(int productId) {
-
-        LOG.warn("Creating a fallback product for productId = {}", productId);
 
         if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
 

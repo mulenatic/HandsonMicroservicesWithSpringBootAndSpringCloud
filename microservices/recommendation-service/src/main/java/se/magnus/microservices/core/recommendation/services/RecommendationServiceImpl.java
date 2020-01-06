@@ -15,6 +15,8 @@ import se.magnus.microservices.core.recommendation.persistence.RecommendationRep
 import se.magnus.util.exceptions.InvalidInputException;
 import se.magnus.util.http.ServiceUtil;
 
+import static java.util.logging.Level.FINE;
+
 @RestController
 public class RecommendationServiceImpl implements RecommendationService {
 
@@ -40,7 +42,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         RecommendationEntity entity = mapper.apiToEntity(body);
         Mono<Recommendation> newEntity = repository.save(entity)
-            .log()
+            .log(null, FINE)
             .onErrorMap(
                 DuplicateKeyException.class,
                 ex -> new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Recommendation Id:" + body.getRecommendationId()))
@@ -54,8 +56,10 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
 
+        LOG.info("Will get recommendations for product with id={}", productId);
+
         return repository.findByProductId(productId)
-            .log()
+            .log(null, FINE)
             .map(e -> mapper.entityToApi(e))
             .map(e -> {e.setServiceAddress(serviceUtil.getServiceAddress()); return e;});
     }
