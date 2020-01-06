@@ -5,6 +5,7 @@ import io.github.resilience4j.reactor.retry.RetryExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -16,6 +17,7 @@ import se.magnus.api.composite.product.*;
 import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.review.Review;
+import se.magnus.util.exceptions.InvalidInputException;
 import se.magnus.util.exceptions.NotFoundException;
 import se.magnus.util.http.ServiceUtil;
 
@@ -78,16 +80,18 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public Mono<ProductAggregate> getCompositeProduct(int productId, int delay, int faultPercent) {
+    public Mono<ProductAggregate> getCompositeProduct(HttpHeaders requestHeaders, int productId, int delay, int faultPercent) {
+
+        HttpHeaders headers = getHeaders(requestHeaders, "X-group");
 
         return Mono.zip(
                 values -> createProductAggregate((SecurityContext) values[0], (Product) values[1], (List<Recommendation>) values[2], (List<Review>) values[3], serviceUtil.getServiceAddress()),
                 ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
-                integration.getProduct(productId, delay, faultPercent)
+                integration.getProduct(headers, productId, delay, faultPercent)
                     .onErrorMap(RetryExceptionWrapper.class, retryException -> retryException.getCause())
                     .onErrorReturn(CircuitBreakerOpenException.class, getProductFallbackValue(productId)),
-                integration.getRecommendations(productId).collectList(),
-                integration.getReviews(productId).collectList())
+                integration.getRecommendations(headers, productId).collectList(),
+                integration.getReviews(headers, productId).collectList())
             .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
             .log();
     }
@@ -115,9 +119,24 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         }
     }
 
+    private HttpHeaders getHeaders(HttpHeaders requesthHeaders, String... headers) {
+        LOG.trace("Will look for {} headers: {}", headers.length, headers);
+        HttpHeaders h = new HttpHeaders();
+        for (String header : headers) {
+            List<String> value = requesthHeaders.get(header);
+            if (value != null) {
+                h.addAll(header, value);
+            }
+        }
+        LOG.trace("Will transfer {}, headers: {}", h.size(), h);
+        return h;
+    }
+
     private Product getProductFallbackValue(int productId) {
 
         LOG.warn("Creating a fallback product for productId = {}", productId);
+
+        if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
 
         if (productId == 13) {
             String errMsg = "Product Id: " + productId + " not found in fallback cache!";
